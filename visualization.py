@@ -6,7 +6,8 @@ import os
 import tkinter as tk
 from analysis import DataAnalyzer
 from tkinter.scrolledtext import ScrolledText
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog, filedialog
+from PIL import ImageTk
 data = pd.read_csv('adult.csv')
 analize = DataAnalyzer(data)
 
@@ -20,15 +21,43 @@ def information():
     except:
         messagebox.showerror('Error')
 
+def show_images(pil_img):
+    image_tk = ImageTk.PhotoImage(pil_img)
+    image_label.configure(image=image_tk)
+    image_label.image = image_tk
+
+def show_correlation():
+    img = analize.correlation_matrix()
+    show_images(img)
+
+def show_categorical():
+    cols = analize.df.select_dtypes(include='object').columns.tolist()
+    if not cols:
+        messagebox.showwarning("Attention, the df doesn't have categorical columns")
+    else:
+        sel = simpledialog.askstring('Column', f'Choose a:\n {cols}')
+        if sel in cols:
+            img = analize.categorical_analisis_col(sel)
+            show_images(img)
 
 root = tk.Tk()
+root.title('Data Analysis')
 
 boton_summary = tk.Button(root, text='Summary', command=information)
-boton_summary.pack()
+boton_summary.grid(row=0, column=0)
+
+numeric_button = tk.Button(root, text='Numeric', command=show_correlation)
+numeric_button.grid(row=0, column=1)
+
+categorical_button = tk.Button(root, text='Categorical', command=show_categorical)
+categorical_button.grid(row=0, column=2)
 
 text_area = ScrolledText(root, width=70, height=30)
-text_area.pack()
+text_area.grid(row=1, column=1)
 
-
+content_frame = tk.Frame(root)
+content_frame.grid(row=1, column=2)
+image_label = tk.Label(content_frame)
+image_label.grid(row=0, column=0)
 root.mainloop()
 
