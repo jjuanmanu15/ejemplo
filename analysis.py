@@ -18,8 +18,9 @@ def fig_to_pil(fig):
     return Image.open(buf)
 
 class DataAnalyzer:
-    def __init__(self, data):
+    def __init__(self, data, file_path):
         self.df = data
+        self.file_path = file_path
         self.categorical_analisis_cols = data.select_dtypes(include='object').columns
         self.numeric_cols = data.select_dtypes(include=np.number).columns
 
@@ -68,4 +69,13 @@ class DataAnalyzer:
             print("Columna no válida.")
             return None
         
+    def new_value(self, column, value):
+        if column not in self.df.columns:
+            raise ValueError(f"Column {column} doesn't exist in the DF")
+
+        new_value = {col: None for col in self.df.columns}
+        new_value[column] = value
+        self.df = pd.concat([self.df, pd.DataFrame([new_value])], ignore_index=True)
+
+        self.df.to_csv(self.file_path, index=False)
         

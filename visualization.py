@@ -9,7 +9,7 @@ from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox, simpledialog, filedialog
 from PIL import ImageTk
 data = pd.read_csv('adult.csv')
-analize = DataAnalyzer(data)
+analize = DataAnalyzer(data, 'adult.csv')
 
 info = analize.summary()
 
@@ -40,6 +40,19 @@ def show_categorical():
             img = analize.categorical_analisis_col(sel)
             show_images(img)
 
+def add_value():
+    try:
+        col = simpledialog.askstring('Column', 'Enter column name:')
+        val = simpledialog.askstring('Value', f'Enter value to add in column "{col}":')
+        if col and val:
+            analize.new_value(col, val)
+            messagebox.showinfo('Success', f'Value "{val}" added to column "{col}".')
+        else:
+            messagebox.showwarning('Input needed', 'Both column and value are required.')
+    except Exception as e:
+        messagebox.showerror('Error', str(e))
+
+
 root = tk.Tk()
 root.title('Data Analysis')
 
@@ -55,9 +68,15 @@ categorical_button.grid(row=0, column=2)
 text_area = ScrolledText(root, width=70, height=30)
 text_area.grid(row=1, column=1)
 
+add_button = tk.Button(root, text='Add Value', command=add_value)
+add_button.grid(row=0, column=3)
+
+
 content_frame = tk.Frame(root)
 content_frame.grid(row=1, column=2)
 image_label = tk.Label(content_frame)
 image_label.grid(row=0, column=0)
 root.mainloop()
+
+
 
